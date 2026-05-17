@@ -1,6 +1,8 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 
 from src.database.session import init_db, SessionLocal
@@ -195,14 +197,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth_router, prefix="/auth", tags=["auth"])
-app.include_router(scans_router, prefix="/scans", tags=["scans"])
-app.include_router(reports_router, prefix="/reports", tags=["reports"])
-app.include_router(usage_router, prefix="/usage", tags=["usage"])
-app.include_router(orgs_router, prefix="/organizations", tags=["organizations"])
-app.include_router(targets_router, prefix="/targets", tags=["targets"])
+api_router = APIRouter(prefix="/api")
+api_router.include_router(auth_router, prefix="/auth", tags=["auth"])
+api_router.include_router(scans_router, prefix="/scans", tags=["scans"])
+api_router.include_router(reports_router, prefix="/reports", tags=["reports"])
+api_router.include_router(usage_router, prefix="/usage", tags=["usage"])
+api_router.include_router(orgs_router, prefix="/organizations", tags=["organizations"])
+api_router.include_router(targets_router, prefix="/targets", tags=["targets"])
+app.include_router(api_router)
 
 
 @app.get("/health")
 def health():
     return {"status": "ok", "version": "1.0.0"}
+
+
+# Serve React frontend in production (when frontend/dist exists)
+_static_dir = os.path.join(os.path.dirname(__file__), "..", "..", "frontend_dist")
+if os.path.isdir(_static_dir):
+    app.mount("/assets", StaticFiles(directory=os.path.join(_static_dir, "assets")), name="assets")
+
+    @app.get("/{full_path:path}")
+    def serve_spa(full_path: str):
+        return FileResponse(os.path.join(_static_dir, "index.html"))
