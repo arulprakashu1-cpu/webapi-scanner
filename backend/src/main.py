@@ -23,7 +23,7 @@ def seed_demo_data():
 
     db = SessionLocal()
     try:
-        if db.query(User).count() > 0:
+        if db.query(User).filter(User.email == "demo@scanapi.io").count() > 0:
             return
 
         demo_user = User(
@@ -219,4 +219,8 @@ if os.path.isdir(_static_dir):
 
     @app.get("/{full_path:path}")
     def serve_spa(full_path: str):
+        # Serve real files (SVGs, fonts, etc.) directly; fall back to index.html for SPA routes
+        candidate = os.path.join(_static_dir, full_path)
+        if full_path and os.path.isfile(candidate):
+            return FileResponse(candidate)
         return FileResponse(os.path.join(_static_dir, "index.html"))

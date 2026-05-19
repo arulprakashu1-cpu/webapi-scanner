@@ -96,6 +96,10 @@ body {
   grid-template-columns: 64px 218px 1fr;
   height: 100vh;
   overflow: hidden;
+  transition: grid-template-columns .22s ease;
+}
+.shell.sidebar-collapsed {
+  grid-template-columns: 64px 0px 1fr;
 }
 
 /* ─── ICON RAIL ─── */
@@ -110,21 +114,6 @@ body {
   transition: background .25s;
   z-index: 20;
 }
-.rail-logo {
-  width: 38px; height: 38px;
-  border-radius: 11px;
-  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%);
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 22px;
-  box-shadow: var(--brand-shadow);
-  cursor: pointer;
-  flex-shrink: 0;
-  animation: breathe 4s ease-in-out infinite;
-}
-@keyframes breathe {
-  0%,100% { box-shadow: 0 4px 16px rgba(245,166,35,.30); }
-  50%      { box-shadow: 0 4px 28px rgba(245,166,35,.55); }
-}
 .rail-btn {
   width: 42px; height: 42px;
   border-radius: 11px;
@@ -135,13 +124,13 @@ body {
 }
 .rail-btn svg {
   width: 19px; height: 19px;
-  fill: none; stroke: rgba(255,255,255,.3);
+  fill: none; stroke: rgba(255,255,255,.65);
   stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
   transition: stroke .15s;
 }
-.rail-btn:hover { background: rgba(255,255,255,.07); }
-.rail-btn:hover svg { stroke: rgba(255,255,255,.7); }
-.rail-btn.active { background: rgba(245,166,35,.18); }
+.rail-btn:hover { background: rgba(255,255,255,.09); }
+.rail-btn:hover svg { stroke: rgba(255,255,255,.95); }
+.rail-btn.active { background: rgba(245,166,35,.22); }
 .rail-btn.active svg { stroke: var(--brand); }
 .rail-badge {
   position: absolute; top: 7px; right: 7px;
@@ -163,9 +152,10 @@ body {
   background: var(--bg-surface);
   border-right: 1px solid var(--border);
   display: flex; flex-direction: column;
-  overflow-y: auto; padding: 22px 0;
+  overflow: hidden; padding: 22px 0;
   transition: background .25s, border-color .25s;
   z-index: 10;
+  min-width: 0;
 }
 .sidebar-section { padding: 0 12px; margin-bottom: 22px; }
 .sidebar-label {

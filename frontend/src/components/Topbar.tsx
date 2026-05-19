@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTheme } from '../contexts/ThemeContext'
+import { useSidebar } from '../contexts/SidebarContext'
 import { useQuery } from '@tanstack/react-query'
 import { scansApi } from '../api/scans'
-import { Sun, Moon, ChevronRight, Search, Plus, Download } from 'lucide-react'
+import { Sun, Moon, ChevronRight, Search, Plus, Download, Menu, PanelLeftClose } from 'lucide-react'
 import { useState } from 'react'
 
 function getBreadcrumb(pathname: string): string[] {
@@ -21,6 +22,7 @@ function getBreadcrumb(pathname: string): string[] {
 
 export default function Topbar() {
   const { theme, toggleTheme } = useTheme()
+  const { open, toggle } = useSidebar()
   const location = useLocation()
   const navigate = useNavigate()
   const crumbs = getBreadcrumb(location.pathname)
@@ -37,8 +39,11 @@ export default function Topbar() {
 
   return (
     <header className="topbar">
-      {/* Breadcrumb + live indicator */}
+      {/* Sidebar toggle + Breadcrumb + live indicator */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <button className="theme-toggle" onClick={toggle} title={open ? 'Collapse sidebar' : 'Expand sidebar'}>
+          {open ? <PanelLeftClose size={14} /> : <Menu size={14} />}
+        </button>
         {hasRunning && <span className="live-dot" title="Scan in progress" />}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           {crumbs.map((crumb, i) => (

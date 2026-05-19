@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Shield, AlertCircle } from 'lucide-react'
+import { useTheme } from '../contexts/ThemeContext'
+import { AlertCircle } from 'lucide-react'
 
 export default function RegisterPage() {
   const { register } = useAuth()
+  const { theme } = useTheme()
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '', full_name: '' })
   const [error, setError] = useState('')
@@ -37,19 +39,14 @@ export default function RegisterPage() {
           background: 'var(--c-card2)', border: '1px solid var(--c-b1)',
           borderRadius: '18px', padding: '28px', marginBottom: '16px', textAlign: 'center',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '8px' }}>
-            <div style={{
-              background: 'var(--c-accent)', borderRadius: '12px',
-              width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Shield size={22} color="#000" strokeWidth={2.5} />
-            </div>
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontWeight: 900, fontSize: '20px', color: 'var(--c-t1)', lineHeight: 1 }}>ScanAPI</div>
-              <div style={{ fontSize: '10px', color: 'var(--c-t3)' }}>Security Scanner</div>
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+            <img
+              src={theme === 'dark' ? '/logo-white.svg' : '/logo-dark.svg'}
+              alt="GozoBee"
+              style={{ height: '32px' }}
+            />
           </div>
-          <p style={{ fontSize: '13px', color: 'var(--c-t3)', marginTop: '4px' }}>Create your free account</p>
+          <p style={{ fontSize: '13px', color: 'var(--c-t3)' }}>Create your free account</p>
         </div>
 
         {/* Register card */}

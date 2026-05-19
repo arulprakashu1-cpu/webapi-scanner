@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
+import { SidebarProvider } from './contexts/SidebarContext'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -63,9 +64,11 @@ export default function App() {
     <BrowserRouter>
       <ThemeProvider>
         <ThemeInitializer />
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
+        <SidebarProvider>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </SidebarProvider>
       </ThemeProvider>
     </BrowserRouter>
   )

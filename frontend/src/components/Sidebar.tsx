@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { scansApi } from '../api/scans'
+import { useTheme } from '../contexts/ThemeContext'
 import {
   LayoutDashboard,
   ShieldCheck,
@@ -38,6 +39,7 @@ function scoreClass(score: number | null | undefined) {
 export default function Sidebar() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { theme } = useTheme()
 
   const { data: scans = [] } = useQuery({
     queryKey: ['scans'],
@@ -57,6 +59,21 @@ export default function Sidebar() {
 
   return (
     <aside className="sidebar">
+      {/* Logo */}
+      <div style={{
+        padding: '0 20px 20px',
+        borderBottom: '1px solid var(--border)',
+        marginBottom: '18px',
+      }}>
+        <Link to="/dashboard" style={{ display: 'inline-flex', textDecoration: 'none' }}>
+          <img
+            src={theme === 'dark' ? '/logo-white.svg' : '/logo-dark.svg'}
+            alt="GozoBee"
+            style={{ height: '30px', display: 'block' }}
+          />
+        </Link>
+      </div>
+
       {/* OVERVIEW */}
       <div className="sidebar-section">
         <div className="sidebar-label">Overview</div>

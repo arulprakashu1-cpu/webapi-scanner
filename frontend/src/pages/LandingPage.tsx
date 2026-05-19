@@ -119,15 +119,11 @@ export default function LandingPage() {
         borderBottom: '1px solid var(--c-b1)',
       }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '64px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ background: 'var(--c-accent)', borderRadius: '10px', width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Shield size={18} color="#000" strokeWidth={2.5} />
-            </div>
-            <div>
-              <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--c-t1)' }}>ScanAPI</div>
-              <div style={{ fontSize: '9px', color: 'var(--c-t3)', marginTop: '-1px' }}>Innovate. Secure. Evolve.</div>
-            </div>
-          </div>
+          <img
+            src={theme === 'dark' ? '/logo-white.svg' : '/logo-dark.svg'}
+            alt="GozoBee"
+            style={{ height: '28px', display: 'block' }}
+          />
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button
               onClick={toggleTheme}
@@ -435,9 +431,12 @@ export default function LandingPage() {
         textAlign: 'center',
       }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Shield size={15} color="var(--c-accent)" />
-            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--c-t1)' }}>ScanAPI</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <img
+              src={theme === 'dark' ? '/logo-white.svg' : '/logo-dark.svg'}
+              alt="GozoBee"
+              style={{ height: '22px', opacity: 0.75 }}
+            />
             <span style={{ fontSize: '12px', color: 'var(--c-t4)' }}>· 2026 · API Security Scanner</span>
           </div>
           <div style={{ display: 'flex', gap: '20px' }}>
