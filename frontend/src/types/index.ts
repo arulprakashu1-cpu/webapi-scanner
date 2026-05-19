@@ -50,6 +50,11 @@ export interface ScanDetail {
     low: number
     info: number
   }
+  security_score?: number
+  https_enforced?: boolean
+  headers_pass?: boolean
+  cors_safe?: boolean
+  endpoints_count?: number
 }
 
 export interface ScanFinding {
