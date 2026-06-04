@@ -67,6 +67,8 @@ class ScanListItem(BaseModel):
     high_count: int = 0
     medium_count: int = 0
     low_count: int = 0
+    security_score: Optional[int] = None
+    endpoints_count: Optional[int] = None
 
     class Config:
         from_attributes = True

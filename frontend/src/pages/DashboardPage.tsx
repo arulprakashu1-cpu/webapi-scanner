@@ -1,12 +1,27 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
 import { scansApi } from '../api/scans'
 import Layout from '../components/Layout'
 import StatusBadge from '../components/StatusBadge'
 import { useAuth } from '../contexts/AuthContext'
-import { Plus, Shield, AlertTriangle, Activity, CheckCircle2, Clock, ChevronRight, Target, Loader2 } from 'lucide-react'
-import { formatDistanceToNow } from '../utils/date'
+import {
+  Plus, Shield, AlertTriangle, Activity, CheckCircle2, Clock,
+  ChevronRight, Target, Zap, Globe,
+  AlertOctagon, Info,
+} from 'lucide-react'
+import { formatDistanceToNow, duration } from '../utils/date'
+
+
+function scoreGrade(s: number) {
+  return s >= 80 ? 'A' : s >= 65 ? 'B' : s >= 50 ? 'C' : s >= 35 ? 'D' : 'F'
+}
+function scoreColor(s: number) {
+  return s >= 70 ? 'var(--c-success)' : s >= 40 ? 'var(--c-accent)' : 'var(--c-danger)'
+}
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -23,268 +38,312 @@ export default function DashboardPage() {
 
   const { data: usage } = useQuery({ queryKey: ['usage'], queryFn: scansApi.usage })
 
-  const totalFindings = scans.reduce((a, s) => a + s.findings_count, 0)
-  const criticalHigh  = scans.reduce((a, s) => a + s.high_count, 0)
-  const completed     = scans.filter((s) => s.status === 'completed').length
-  const running       = scans.filter((s) => s.status === 'running' || s.status === 'queued')
-  const history       = scans.filter((s) => s.status !== 'running' && s.status !== 'queued')
+  const completed   = scans.filter((s) => s.status === 'completed')
+  const history     = completed
+  const totalFindings  = scans.reduce((a, s) => a + s.findings_count, 0)
+  const criticalHigh   = scans.reduce((a, s) => a + s.high_count, 0)
+  const mediumCount    = scans.reduce((a, s) => a + s.medium_count, 0)
+  const lowCount       = scans.reduce((a, s) => a + s.low_count, 0)
+  const cleanScans     = completed.filter((s) => s.findings_count === 0).length
+  const scoredScans    = completed.filter((s) => s.security_score != null)
+  const avgScore       = scoredScans.length
+    ? Math.round(scoredScans.reduce((a, s) => a + (s.security_score ?? 0), 0) / scoredScans.length)
+    : null
+  const totalEndpoints = scans.reduce((a, s) => a + (s.endpoints_count ?? 0), 0)
 
-  // Build last-7-days trend data
+  // 7-day trend
   const trendData = (() => {
     const days: { date: string; scans: number; findings: number }[] = []
     for (let i = 6; i >= 0; i--) {
-      const d = new Date()
-      d.setDate(d.getDate() - i)
-      const label = d.toLocaleDateString('en', { month: 'short', day: 'numeric' })
+      const d = new Date(); d.setDate(d.getDate() - i)
+      const label  = d.toLocaleDateString('en', { month: 'short', day: 'numeric' })
       const dayStr = d.toISOString().slice(0, 10)
-      const dayScans = scans.filter((s) => s.created_at?.slice(0, 10) === dayStr)
-      days.push({ date: label, scans: dayScans.length, findings: dayScans.reduce((a, s) => a + s.findings_count, 0) })
+      const ds = scans.filter((s) => s.created_at?.slice(0, 10) === dayStr)
+      days.push({ date: label, scans: ds.length, findings: ds.reduce((a, s) => a + s.findings_count, 0) })
     }
     return days
   })()
 
+
+  const CIRC = 2 * Math.PI * 40
+  const scoreVal  = avgScore ?? 0
+  const dashOff   = CIRC * (1 - scoreVal / 100)
+
   return (
     <Layout>
-      <div style={{ maxWidth: '1100px' }}>
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px' }}>
+      <div style={{ width: '100%' }}>
+
+        {/* ── HEADER ─────────────────────────────────────────── */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '28px' }}>
           <div>
-            <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--c-t1)', marginBottom: '4px' }}>
-              Welcome back, <span style={{ color: 'var(--c-accent)' }}>{user?.full_name?.split(' ')[0] || 'there'}</span>
-            </h1>
-            <p style={{ fontSize: '13px', color: 'var(--c-t3)' }}>
-              {scans.length === 0 ? 'No scans yet — run your first security scan below.' : `${scans.length} scan${scans.length > 1 ? 's' : ''} in your workspace`}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+              <h1 style={{ fontSize: '26px', fontWeight: 900, color: 'var(--c-t1)', letterSpacing: '-0.02em' }}>
+                Welcome back,{' '}
+                <span style={{ color: 'var(--c-accent)' }}>{user?.full_name?.split(' ')[0] || 'there'}</span>
+              </h1>
+              {usage && (
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '4px',
+                  fontSize: '10px', fontWeight: 800,
+                  background: usage.plan === 'pro' ? 'var(--c-accent)' : 'var(--c-b1)',
+                  color: usage.plan === 'pro' ? '#000' : 'var(--c-t3)',
+                  padding: '3px 9px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.06em',
+                }}>
+                  {usage.plan === 'pro' && <Zap size={9} />}
+                  {usage.plan === 'pro' ? 'Pro' : 'Free'}
+                </span>
+              )}
+            </div>
+            <p style={{ fontSize: '13.5px', color: 'var(--c-t3)' }}>
+              {scans.length === 0
+                ? 'No scans yet — run your first security scan below.'
+                : `${completed.length} completed scan${completed.length !== 1 ? 's' : ''} · ${totalFindings} findings · ${totalEndpoints} endpoints analysed`}
             </p>
           </div>
-          <Link
-            to="/scans/new"
-            className="btn-yellow"
-            style={{ fontSize: '13px', padding: '10px 18px', borderRadius: '10px' }}
-          >
-            <Plus size={15} strokeWidth={2.5} />
-            New Scan
-          </Link>
-        </div>
-
-        {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '24px' }}>
-          <MetricCard icon={Activity} iconColor="var(--c-accent)" label="Total Scans" value={scans.length} />
-          <MetricCard icon={AlertTriangle} iconColor="var(--c-danger)" label="Critical / High" value={criticalHigh} valueColor="var(--c-danger)" />
-          <MetricCard icon={Shield} iconColor="var(--c-info)" label="Total Findings" value={totalFindings} valueColor="var(--c-info)" />
-          <MetricCard icon={CheckCircle2} iconColor="var(--c-success)" label="Completed" value={completed} valueColor="var(--c-success)" />
-        </div>
-
-        {/* Usage bar */}
-        {usage && (
-          <div style={{
-            background: 'var(--c-card)', border: '1px solid var(--c-b1)',
-            borderRadius: '12px', padding: '14px 18px', marginBottom: '24px',
-            display: 'flex', alignItems: 'center', gap: '16px',
-          }}>
-            <div style={{ fontSize: '11px', color: 'var(--c-t3)', fontWeight: 600, whiteSpace: 'nowrap' }}>Monthly Usage</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span style={{ fontSize: '11px', color: 'var(--c-t3)' }}>Scans used</span>
-                <span style={{
-                  fontSize: '11px', fontWeight: 700,
-                  color: usage.monthly_scans >= usage.limit ? 'var(--c-danger)' : 'var(--c-accent)',
-                }}>
-                  {usage.monthly_scans} / {usage.limit}
-                </span>
-              </div>
-              <div style={{ width: '100%', background: 'var(--c-b1)', borderRadius: '99px', height: '5px' }}>
-                <div style={{
-                  height: '5px', borderRadius: '99px',
-                  background: usage.monthly_scans >= usage.limit ? 'var(--c-danger)' : 'var(--c-accent)',
-                  width: `${Math.min(100, (usage.monthly_scans / usage.limit) * 100)}%`,
-                  transition: 'width 0.3s',
-                }} />
-              </div>
-            </div>
-            <span style={{
-              fontSize: '11px', color: 'var(--c-t4)', fontWeight: 500,
-              background: 'var(--c-b1)', padding: '3px 10px', borderRadius: '6px',
-              whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '0.04em',
-            }}>
-              {usage.plan}
-            </span>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <Link to="/targets" className="btn-dark" style={{ fontSize: '12.5px', padding: '9px 14px', borderRadius: '10px' }}>
+              <Globe size={13} /> Targets
+            </Link>
+            <Link to="/scans/new" className="btn-yellow" style={{ fontSize: '13px', padding: '10px 18px', borderRadius: '10px' }}>
+              <Plus size={15} strokeWidth={2.5} /> New Scan
+            </Link>
           </div>
-        )}
+        </div>
 
-        {/* Scan trend chart */}
-        {scans.length > 0 && (
-          <div style={{ background: 'var(--c-card)', border: '1px solid var(--c-b1)', borderRadius: '14px', padding: '20px', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--c-t1)' }}>Scan Activity</div>
-              <div style={{ fontSize: '10.5px', color: 'var(--c-t4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Last 7 days</div>
+        {/* ── 6 METRIC CARDS ──────────────────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: '12px', marginBottom: '20px' }}>
+          <MetricCard icon={Activity}      color="var(--c-accent)"  label="Total Scans"     value={scans.length}       sub={`${scans.length - completed.length} in progress`} />
+          <MetricCard icon={CheckCircle2}  color="var(--c-success)" label="Completed"        value={completed.length}   valueColor="var(--c-success)" sub="finished scans" />
+          <MetricCard icon={AlertOctagon}  color="#ef4444"          label="Critical / High"  value={criticalHigh}       valueColor="#ef4444" sub="findings" />
+          <MetricCard icon={AlertTriangle} color="#f59e0b"          label="Medium"           value={mediumCount}        valueColor="#f59e0b" sub="findings" />
+          <MetricCard icon={Info}          color="#60a5fa"          label="Low / Info"       value={lowCount}           valueColor="#60a5fa" sub="findings" />
+          <MetricCard icon={Shield}        color="#10b981"          label="Clean Scans"      value={cleanScans}         valueColor="#10b981" sub={`of ${completed.length} completed`} />
+        </div>
+
+        {/* ── ROW: CHART + POSTURE ────────────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '16px', marginBottom: '20px', alignItems: 'stretch' }}>
+
+          {/* Trend chart */}
+          <div style={{ background: 'var(--c-card)', border: '1px solid var(--c-b1)', borderRadius: '16px', padding: '22px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--c-t1)', marginBottom: '2px' }}>Scan Activity</div>
+                <div style={{ fontSize: '11.5px', color: 'var(--c-t4)' }}>Scans and findings over the last 7 days</div>
+              </div>
+              <div style={{ display: 'flex', gap: '14px' }}>
+                {[{ color: 'var(--brand)', label: 'Scans' }, { color: '#ef4444', label: 'Findings' }].map(({ color, label }) => (
+                  <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: color }} />
+                    <span style={{ fontSize: '11px', color: 'var(--c-t4)' }}>{label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <ResponsiveContainer width="100%" height={120}>
+            <ResponsiveContainer width="100%" height={160}>
               <AreaChart data={trendData} margin={{ top: 4, right: 4, bottom: 0, left: -28 }}>
                 <defs>
                   <linearGradient id="scansGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#FFD600" stopOpacity={0.25} />
-                    <stop offset="100%" stopColor="#FFD600" stopOpacity={0} />
+                    <stop offset="0%" stopColor="var(--brand)" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="var(--brand)" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="findingsGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#FF4444" stopOpacity={0.18} />
-                    <stop offset="100%" stopColor="#FF4444" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#ef4444" stopOpacity={0.2} />
+                    <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--c-b1)" vertical={false} />
                 <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--c-t4)' }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: 'var(--c-t4)' }} axisLine={false} tickLine={false} allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{ background: 'var(--c-card)', border: '1px solid var(--c-b2)', borderRadius: '8px', fontSize: '12px', color: 'var(--c-t1)' }}
-                  labelStyle={{ color: 'var(--c-t3)', marginBottom: '4px' }}
-                />
-                <Area type="monotone" dataKey="scans" name="Scans" stroke="#FFD600" strokeWidth={2} fill="url(#scansGrad)" dot={false} />
-                <Area type="monotone" dataKey="findings" name="Findings" stroke="#FF4444" strokeWidth={2} fill="url(#findingsGrad)" dot={false} />
+                <Tooltip contentStyle={{ background: 'var(--c-card)', border: '1px solid var(--c-b2)', borderRadius: '8px', fontSize: '12px', color: 'var(--c-t1)' }} labelStyle={{ color: 'var(--c-t3)', marginBottom: '4px' }} />
+                <Area type="monotone" dataKey="scans"    name="Scans"    stroke="var(--brand)" strokeWidth={2} fill="url(#scansGrad)"    dot={false} />
+                <Area type="monotone" dataKey="findings" name="Findings" stroke="#ef4444" strokeWidth={2} fill="url(#findingsGrad)" dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        )}
 
-        {/* Running scans */}
-        {running.length > 0 && (
-          <div style={{ marginBottom: '24px' }}>
-            <div style={{ fontSize: '10.5px', color: 'var(--c-accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>
-              Running Now
+          {/* Security posture */}
+          <div style={{ background: 'var(--c-card)', border: '1px solid var(--c-b1)', borderRadius: '16px', padding: '22px', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--c-t1)', marginBottom: '2px' }}>Security Posture</div>
+            <div style={{ fontSize: '11.5px', color: 'var(--c-t4)', marginBottom: '20px' }}>Average across all completed scans</div>
+
+            {/* Score ring */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '20px' }}>
+              <div style={{ position: 'relative', width: '90px', height: '90px', flexShrink: 0 }}>
+                <svg viewBox="0 0 90 90" style={{ width: '90px', height: '90px', transform: 'rotate(-90deg)' }}>
+                  <circle cx="45" cy="45" r="40" fill="none" stroke="var(--c-b1)" strokeWidth="7" />
+                  {avgScore != null && (
+                    <circle cx="45" cy="45" r="40" fill="none"
+                      stroke={scoreColor(avgScore)} strokeWidth="7"
+                      strokeDasharray={CIRC} strokeDashoffset={dashOff}
+                      strokeLinecap="round" style={{ transition: 'stroke-dashoffset 1s' }}
+                    />
+                  )}
+                </svg>
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  {avgScore != null ? (
+                    <>
+                      <span style={{ fontSize: '22px', fontWeight: 800, color: scoreColor(avgScore), lineHeight: 1 }}>{avgScore}</span>
+                      <span style={{ fontSize: '9.5px', color: 'var(--c-t4)' }}>/100</span>
+                    </>
+                  ) : (
+                    <span style={{ fontSize: '16px', color: 'var(--c-t4)' }}>—</span>
+                  )}
+                </div>
+              </div>
+              <div>
+                {avgScore != null && (
+                  <div style={{ fontSize: '28px', fontWeight: 900, color: scoreColor(avgScore), letterSpacing: '-0.02em', lineHeight: 1, marginBottom: '4px' }}>
+                    Grade {scoreGrade(avgScore)}
+                  </div>
+                )}
+                <div style={{ fontSize: '11.5px', color: 'var(--c-t4)', lineHeight: 1.5 }}>
+                  {avgScore == null ? 'Complete scans to\nsee your posture' : avgScore >= 70 ? 'Good security posture' : avgScore >= 40 ? 'Needs improvement' : 'High risk — act now'}
+                </div>
+              </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {running.map((scan) => (
-                <Link
-                  key={scan.id}
-                  to={`/scans/${scan.id}`}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '14px',
-                    background: 'var(--c-accent-bg)', border: '1px solid var(--c-accent-br)',
-                    borderRadius: '12px', padding: '14px 16px', textDecoration: 'none',
-                    transition: 'border-color 0.15s',
-                  }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--c-accent)')}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--c-accent-br)')}
-                >
-                  <div style={{
-                    width: '34px', height: '34px', background: 'var(--c-accent-bg)',
-                    borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  }}>
-                    <Loader2 size={16} color="var(--c-accent)" style={{ animation: 'spin 1s linear infinite' }} />
+
+            {/* Sev bars */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+              {[
+                { label: 'Critical / High', count: criticalHigh, color: '#ef4444', max: Math.max(1, criticalHigh, mediumCount, lowCount) },
+                { label: 'Medium',          count: mediumCount,  color: '#f59e0b', max: Math.max(1, criticalHigh, mediumCount, lowCount) },
+                { label: 'Low / Info',      count: lowCount,     color: '#10b981', max: Math.max(1, criticalHigh, mediumCount, lowCount) },
+              ].map(({ label, count, color, max }) => (
+                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--c-t3)', width: '90px', flexShrink: 0 }}>{label}</span>
+                  <div style={{ flex: 1, height: '5px', background: 'var(--c-b1)', borderRadius: '99px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${(count / max) * 100}%`, background: color, borderRadius: '99px', transition: 'width 0.8s' }} />
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--c-t1)', marginBottom: '2px' }}>{scan.name}</div>
-                    <div style={{ fontSize: '11.5px', color: 'var(--c-t3)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{scan.target_url}</div>
-                  </div>
-                  <StatusBadge status={scan.status} />
-                  <ChevronRight size={15} color="var(--c-t4)" />
-                </Link>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color, width: '24px', textAlign: 'right' }}>{count}</span>
+                </div>
               ))}
             </div>
-          </div>
-        )}
 
-        {/* Scan History */}
+            {/* Usage inline */}
+            {usage && (
+              <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid var(--c-b1)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--c-t4)' }}>Monthly scans</span>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--c-t2)' }}>
+                    {usage.monthly_scans} / {usage.plan === 'pro' ? '∞' : usage.limit}
+                  </span>
+                </div>
+                <div style={{ height: '4px', background: 'var(--c-b1)', borderRadius: '99px', overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%', borderRadius: '99px',
+                    background: usage.monthly_scans >= usage.limit ? 'var(--c-danger)' : 'var(--c-accent)',
+                    width: usage.plan === 'pro' ? `${Math.min(100, (usage.monthly_scans / 100) * 100)}%` : `${Math.min(100, (usage.monthly_scans / usage.limit) * 100)}%`,
+                    transition: 'width 0.4s',
+                  }} />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+
+        {/* ── SCAN HISTORY ────────────────────────────────────── */}
         <div>
-          <div style={{ fontSize: '10.5px', color: 'var(--c-t3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>
-            Scan History
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--c-t1)', marginBottom: '2px' }}>Scan History</div>
+              <div style={{ fontSize: '11.5px', color: 'var(--c-t4)' }}>{history.length} completed scan{history.length !== 1 ? 's' : ''}</div>
+            </div>
+            {history.length > 0 && (
+              <Link to="/scans/new" className="btn-dark" style={{ fontSize: '12px', padding: '8px 14px', borderRadius: '9px' }}>
+                <Plus size={13} /> New Scan
+              </Link>
+            )}
           </div>
 
           {isLoading ? (
-            <div style={{
-              background: 'var(--c-card)', border: '1px solid var(--c-b1)',
-              borderRadius: '14px', padding: '48px',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--c-t4)',
-            }}>
-              <div style={{
-                width: '24px', height: '24px',
-                border: '2px solid var(--c-accent)', borderTopColor: 'transparent',
-                borderRadius: '50%', animation: 'spin 0.6s linear infinite', marginBottom: '12px',
-              }} />
+            <div style={{ background: 'var(--c-card)', border: '1px solid var(--c-b1)', borderRadius: '16px', padding: '48px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--c-t4)' }}>
+              <div style={{ width: '24px', height: '24px', border: '2px solid var(--c-accent)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.6s linear infinite', marginBottom: '12px' }} />
               Loading…
             </div>
           ) : history.length === 0 ? (
-            <div style={{
-              background: 'var(--c-card)', border: '1px solid var(--c-b1)',
-              borderRadius: '14px', padding: '56px', textAlign: 'center',
-            }}>
-              <div style={{
-                width: '52px', height: '52px', background: 'var(--c-b1)',
-                borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',
-              }}>
-                <Target size={24} color="var(--c-t4)" />
+            <div style={{ background: 'var(--c-card)', border: '1px solid var(--c-b1)', borderRadius: '16px', padding: '64px', textAlign: 'center' }}>
+              <div style={{ width: '60px', height: '60px', background: 'var(--c-b1)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
+                <Target size={28} color="var(--c-t4)" />
               </div>
-              <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--c-t1)', marginBottom: '6px' }}>No scans yet</p>
-              <p style={{ fontSize: '13px', color: 'var(--c-t3)', marginBottom: '24px' }}>Run your first API security scan to see results.</p>
-              <Link to="/scans/new" className="btn-yellow" style={{ fontSize: '13px', padding: '10px 20px', borderRadius: '10px', display: 'inline-flex' }}>
-                <Plus size={14} />
-                Start your first scan
+              <p style={{ fontSize: '16px', fontWeight: 700, color: 'var(--c-t1)', marginBottom: '8px' }}>No scans yet</p>
+              <p style={{ fontSize: '13.5px', color: 'var(--c-t3)', marginBottom: '28px' }}>Run your first API security scan to see results here.</p>
+              <Link to="/scans/new" className="btn-yellow" style={{ fontSize: '13.5px', padding: '12px 24px', borderRadius: '10px', display: 'inline-flex' }}>
+                <Plus size={15} /> Start your first scan
               </Link>
             </div>
           ) : (
-            <div style={{ background: 'var(--c-card)', border: '1px solid var(--c-b1)', borderRadius: '14px', overflow: 'hidden' }}>
+            <div style={{ background: 'var(--c-card)', border: '1px solid var(--c-b1)', borderRadius: '16px', overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead className="table-header">
+                <thead style={{ background: 'var(--c-b1)' }}>
                   <tr>
-                    <th>Scan Name</th>
-                    <th>Target</th>
-                    <th>Status</th>
-                    <th>Findings</th>
-                    <th>Date</th>
-                    <th style={{ width: '40px' }} />
+                    {['Scan Name', 'Target', 'Score', 'Critical/High', 'Medium', 'Low/Info', 'Endpoints', 'Duration', 'Date', ''].map((h) => (
+                      <th key={h} style={{ padding: '10px 14px', fontSize: '10px', fontWeight: 700, color: 'var(--c-t3)', textTransform: 'uppercase', letterSpacing: '0.07em', textAlign: 'left', whiteSpace: 'nowrap' }}>{h}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {history.map((scan) => (
-                    <tr key={scan.id} className="table-row">
-                      <td>
-                        <Link
-                          to={`/scans/${scan.id}`}
-                          style={{ fontWeight: 600, color: 'var(--c-t1)', textDecoration: 'none', fontSize: '13.5px', transition: 'color 0.15s' }}
-                          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--c-accent)')}
-                          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--c-t1)')}
-                        >
-                          {scan.name}
-                        </Link>
-                      </td>
-                      <td>
-                        <span style={{ fontSize: '11.5px', fontFamily: 'monospace', color: 'var(--c-t3)', display: 'block', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {scan.target_url || '—'}
-                        </span>
-                      </td>
-                      <td><StatusBadge status={scan.status} /></td>
-                      <td>
-                        {scan.status === 'completed' ? (
-                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                            {scan.high_count > 0 && (
-                              <span style={{ fontSize: '11px', fontWeight: 700, background: 'rgba(239,68,68,0.12)', color: 'var(--c-danger)', padding: '2px 8px', borderRadius: '5px' }}>
-                                {scan.high_count} H/C
-                              </span>
-                            )}
-                            {scan.medium_count > 0 && (
-                              <span style={{ fontSize: '11px', fontWeight: 700, background: 'var(--c-accent-bg)', color: 'var(--c-accent)', padding: '2px 8px', borderRadius: '5px' }}>
-                                {scan.medium_count} M
-                              </span>
-                            )}
-                            {scan.findings_count === 0 && (
-                              <span style={{ fontSize: '12px', color: 'var(--c-success)', fontWeight: 600 }}>Clean</span>
-                            )}
+                  {history.map((scan, idx) => {
+                    const sc = scan.security_score
+                    return (
+                      <tr key={scan.id} style={{ borderTop: '1px solid var(--c-b1)', background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)' }}>
+                        <td style={{ padding: '13px 14px' }}>
+                          <Link to={`/scans/${scan.id}`} style={{ fontWeight: 600, color: 'var(--c-t1)', textDecoration: 'none', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', transition: 'color 0.15s' }}
+                            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--c-accent)')}
+                            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--c-t1)')}
+                          >
+                            <Shield size={12} color="var(--c-t4)" />
+                            {scan.name}
+                          </Link>
+                        </td>
+                        <td style={{ padding: '13px 14px' }}>
+                          <span style={{ fontSize: '11.5px', fontFamily: 'monospace', color: 'var(--c-t3)', display: 'block', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {scan.target_url ? new URL(scan.target_url).hostname : '—'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '13px 14px' }}>
+                          {sc != null ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ fontSize: '14px', fontWeight: 800, color: scoreColor(sc), lineHeight: 1 }}>{sc}</span>
+                              <span style={{ fontSize: '10px', fontWeight: 700, color: scoreColor(sc), background: scoreColor(sc) + '18', padding: '1px 5px', borderRadius: '4px' }}>{scoreGrade(sc)}</span>
+                            </div>
+                          ) : <span style={{ color: 'var(--c-t4)', fontSize: '12px' }}>—</span>}
+                        </td>
+                        <td style={{ padding: '13px 14px' }}>
+                          {scan.high_count > 0 ? (
+                            <span style={{ fontSize: '12px', fontWeight: 700, background: 'rgba(239,68,68,0.12)', color: '#ef4444', padding: '3px 9px', borderRadius: '6px' }}>{scan.high_count}</span>
+                          ) : <span style={{ color: 'var(--c-success)', fontSize: '12px', fontWeight: 600 }}>0</span>}
+                        </td>
+                        <td style={{ padding: '13px 14px' }}>
+                          {scan.medium_count > 0 ? (
+                            <span style={{ fontSize: '12px', fontWeight: 700, background: 'rgba(245,158,11,0.12)', color: '#f59e0b', padding: '3px 9px', borderRadius: '6px' }}>{scan.medium_count}</span>
+                          ) : <span style={{ color: 'var(--c-t4)', fontSize: '12px' }}>0</span>}
+                        </td>
+                        <td style={{ padding: '13px 14px' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--c-t3)' }}>{scan.low_count}</span>
+                        </td>
+                        <td style={{ padding: '13px 14px' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--c-t3)' }}>
+                            {scan.endpoints_count != null ? scan.endpoints_count : '—'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '13px 14px' }}>
+                          <span style={{ fontSize: '11.5px', color: 'var(--c-t4)' }}>{duration(scan.created_at, scan.finished_at)}</span>
+                        </td>
+                        <td style={{ padding: '13px 14px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', color: 'var(--c-t3)' }}>
+                            <Clock size={11} />
+                            {formatDistanceToNow(scan.created_at)}
                           </div>
-                        ) : (
-                          <span style={{ color: 'var(--c-t4)', fontSize: '13px' }}>—</span>
-                        )}
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', color: 'var(--c-t3)' }}>
-                          <Clock size={11} />
-                          {formatDistanceToNow(scan.created_at)}
-                        </div>
-                      </td>
-                      <td>
-                        <Link to={`/scans/${scan.id}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <ChevronRight size={15} color="var(--c-t4)" />
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td style={{ padding: '13px 14px' }}>
+                          <Link to={`/scans/${scan.id}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <ChevronRight size={15} color="var(--c-t4)" />
+                          </Link>
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
@@ -296,22 +355,29 @@ export default function DashboardPage() {
   )
 }
 
-function MetricCard({ icon: Icon, iconColor, label, value, valueColor = 'var(--c-accent)' }: {
-  icon: React.ElementType; iconColor: string; label: string; value: number; valueColor?: string
+function MetricCard({
+  icon: Icon, color, label, value, valueColor, sub,
+}: {
+  icon: React.ElementType
+  color: string
+  label: string
+  value: number | string
+  valueColor?: string
+  sub?: string
 }) {
   return (
-    <div className="metric-card">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-        <div style={{
-          width: '32px', height: '32px',
-          background: iconColor + '22',
-          borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Icon size={15} color={iconColor} />
+    <div style={{
+      background: 'var(--c-card)', border: '1px solid var(--c-b1)',
+      borderRadius: '14px', padding: '18px 16px',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+        <div style={{ width: '30px', height: '30px', background: color + '22', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon size={14} color={color} />
         </div>
-        <span className="metric-label">{label}</span>
+        <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--c-t3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</span>
       </div>
-      <div style={{ fontSize: '30px', fontWeight: 800, color: valueColor, lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: '28px', fontWeight: 900, color: valueColor || color, lineHeight: 1, letterSpacing: '-0.02em', marginBottom: '4px' }}>{value}</div>
+      {sub && <div style={{ fontSize: '11px', color: 'var(--c-t4)' }}>{sub}</div>}
     </div>
   )
 }

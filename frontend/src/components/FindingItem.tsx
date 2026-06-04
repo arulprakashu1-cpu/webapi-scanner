@@ -6,7 +6,7 @@ import SeverityBadge from './SeverityBadge'
 const severityColor: Record<string, string> = {
   critical: '#FF4444',
   high:     '#FF8C00',
-  medium:   '#FFD600',
+  medium:   'var(--brand)',
   low:      '#22C55E',
   info:     '#60A5FA',
 }

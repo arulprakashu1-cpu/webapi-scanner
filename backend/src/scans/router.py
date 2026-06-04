@@ -38,6 +38,8 @@ def list_scans(current_user: User = Depends(get_current_user), db: Session = Dep
                 high_count=summary.get("critical", 0) + summary.get("high", 0),
                 medium_count=summary.get("medium", 0),
                 low_count=summary.get("low", 0) + summary.get("info", 0),
+                security_score=scan.security_score,
+                endpoints_count=scan.endpoints_count,
             )
         )
     return result
@@ -47,9 +49,11 @@ def list_scans(current_user: User = Depends(get_current_user), db: Session = Dep
 def create_scan(data: schemas.ScanCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     org = _get_org_or_404(current_user, db)
 
+    plan = getattr(current_user, "plan", "free") or "free"
+    limit = settings.PRO_TIER_SCANS_PER_MONTH if plan == "pro" else settings.FREE_TIER_SCANS_PER_MONTH
     monthly = service.get_monthly_scan_count(db, org.id)
-    if monthly >= settings.FREE_TIER_SCANS_PER_MONTH:
-        raise HTTPException(status_code=429, detail=f"Monthly limit of {settings.FREE_TIER_SCANS_PER_MONTH} scans reached. Upgrade to continue.")
+    if monthly >= limit:
+        raise HTTPException(status_code=429, detail=f"Monthly limit of {limit} scans reached. {'Upgrade to Pro to continue.' if plan == 'free' else 'Contact support.'}")
 
     scan = service.create_scan(db, data, org.id)
     target = data.target_url or "https://example.com/api"

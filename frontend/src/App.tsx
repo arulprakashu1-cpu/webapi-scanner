@@ -10,6 +10,8 @@ import DashboardPage from './pages/DashboardPage'
 import NewScanPage from './pages/NewScanPage'
 import ScanDetailPage from './pages/ScanDetailPage'
 import TargetsPage from './pages/TargetsPage'
+import AdminLoginPage from './pages/admin/AdminLoginPage'
+import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth()
@@ -44,6 +46,9 @@ function AppRoutes() {
       <Route path="/scans/:id" element={<ProtectedRoute><ScanDetailPage /></ProtectedRoute>} />
       <Route path="/targets" element={<ProtectedRoute><TargetsPage /></ProtectedRoute>} />
       <Route path="/reports" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />
+      {/* Admin routes — completely separate, no app Layout */}
+      <Route path="/admin" element={<AdminLoginPage />} />
+      <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
       <Route path="/ci" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />

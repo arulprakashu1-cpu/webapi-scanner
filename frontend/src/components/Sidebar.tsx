@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { scansApi } from '../api/scans'
 import { useTheme } from '../contexts/ThemeContext'
+import { useAuth } from '../contexts/AuthContext'
 import {
   LayoutDashboard,
   ShieldCheck,
@@ -40,6 +41,8 @@ export default function Sidebar() {
   const location = useLocation()
   const navigate = useNavigate()
   const { theme } = useTheme()
+  const { user } = useAuth()
+  const isPro = user?.plan === 'pro'
 
   const { data: scans = [] } = useQuery({
     queryKey: ['scans'],
@@ -126,14 +129,14 @@ export default function Sidebar() {
         </div>
       )}
 
-      {/* PROMO CARD */}
-      <div className="promo-card">
+      {/* PROMO CARD — only for free users */}
+      {!isPro && <div className="promo-card">
         <Sparkles size={16} style={{ color: 'var(--brand)', marginBottom: '6px' }} />
         <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-head)', marginBottom: '4px' }}>
           Upgrade to Pro
         </div>
         <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginBottom: '10px', lineHeight: 1.5 }}>
-          Unlock AI analysis, PDF reports, and unlimited scans.
+          Unlock AI analysis and unlimited scans.
         </div>
         <button
           onClick={() => navigate('/pricing')}
@@ -155,7 +158,7 @@ export default function Sidebar() {
         >
           View plans <ChevronRight size={12} />
         </button>
-      </div>
+      </div>}
     </aside>
   )
 }

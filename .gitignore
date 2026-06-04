@@ -40,3 +40,13 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Logs
+*.log
+backend.err
+frontend.log
+backend.log
+
+# Temp
+fix_db.py
+check_db.py

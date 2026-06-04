@@ -12,6 +12,7 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+    captcha_token: Optional[str] = None
 
 
 class UserRead(BaseModel):
@@ -20,6 +21,8 @@ class UserRead(BaseModel):
     full_name: Optional[str]
     avatar_url: Optional[str]
     email_verified: bool
+    plan: str = "free"
+    is_admin: bool = False
     created_at: datetime
 
     class Config:

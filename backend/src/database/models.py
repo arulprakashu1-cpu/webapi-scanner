@@ -21,6 +21,10 @@ class User(Base):
     full_name = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
     email_verified = Column(Boolean, default=False)
+    plan = Column(String, default="free")
+    is_admin = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True)
+    payment_status = Column(String, default="none")  # none | trial | active | expired | cancelled
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     last_login = Column(DateTime, nullable=True)
 

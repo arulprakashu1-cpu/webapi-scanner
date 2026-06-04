@@ -11,16 +11,24 @@ from src.config import settings
 router = APIRouter()
 
 
+def get_plan_limit(plan: str) -> int:
+    if plan == "pro":
+        return settings.PRO_TIER_SCANS_PER_MONTH
+    return settings.FREE_TIER_SCANS_PER_MONTH
+
+
 @router.get("/")
 def get_usage(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    plan = getattr(current_user, "plan", "free") or "free"
+    limit = get_plan_limit(plan)
     org = get_user_org(db, current_user.id)
     if not org:
-        return {"monthly_scans": 0, "limit": settings.FREE_TIER_SCANS_PER_MONTH, "plan": "free", "remaining": settings.FREE_TIER_SCANS_PER_MONTH}
+        return {"monthly_scans": 0, "limit": limit, "plan": plan, "remaining": limit}
 
     count = get_monthly_scan_count(db, org.id)
     return {
         "monthly_scans": count,
-        "limit": settings.FREE_TIER_SCANS_PER_MONTH,
-        "plan": "free",
-        "remaining": max(0, settings.FREE_TIER_SCANS_PER_MONTH - count),
+        "limit": limit,
+        "plan": plan,
+        "remaining": max(0, limit - count),
     }

@@ -4,7 +4,51 @@ export interface User {
   full_name?: string
   avatar_url?: string
   email_verified: boolean
+  plan: 'free' | 'pro'
+  is_admin: boolean
   created_at: string
+}
+
+export interface AdminUser {
+  id: string
+  email: string
+  full_name?: string
+  plan: 'free' | 'pro'
+  is_admin: boolean
+  is_active: boolean
+  payment_status: 'none' | 'trial' | 'active' | 'expired' | 'cancelled'
+  email_verified: boolean
+  created_at: string
+  last_login?: string
+  total_scans: number
+  total_findings: number
+  org_name?: string
+}
+
+export interface AdminStats {
+  total_users: number
+  active_users: number
+  pro_users: number
+  free_users: number
+  disabled_users: number
+  total_scans: number
+  completed_scans: number
+  total_findings: number
+  scans_this_month: number
+  new_users_this_month: number
+}
+
+export interface AdminScan {
+  id: string
+  name: string
+  status: string
+  target_url?: string
+  created_at?: string
+  finished_at?: string
+  security_score?: number
+  findings_count: number
+  org_name?: string
+  owner_email?: string
 }
 
 export interface AuthToken {
@@ -27,6 +71,8 @@ export interface ScanListItem {
   high_count: number
   medium_count: number
   low_count: number
+  security_score?: number
+  endpoints_count?: number
 }
 
 export interface ScanDetail {
@@ -96,5 +142,10 @@ export interface ApiTarget {
   created_at: string
   last_scanned_at?: string
   total_scans: number
+  completed_scans: number
   last_scan_status?: string
+  last_findings_count?: number
+  last_security_score?: number
+  last_high_count?: number
+  last_medium_count?: number
 }
