@@ -5,7 +5,7 @@ import { Eye, EyeOff, AlertCircle, Shield, Lock } from 'lucide-react'
 
 export default function AdminLoginPage() {
   const navigate = useNavigate()
-  const [email,    setEmail]    = useState('admin@scanapi.io')
+  const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
   const [showPw,   setShowPw]   = useState(false)
   const [error,    setError]    = useState('')

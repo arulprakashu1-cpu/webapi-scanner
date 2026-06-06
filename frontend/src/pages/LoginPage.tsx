@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import {
-  Eye, EyeOff, AlertCircle, Search, Zap, Shield, BarChart3,
+  Eye, EyeOff, AlertCircle, Shield, BarChart3, Zap,
   Brain, Clock, CheckCircle, Globe, Lock, ArrowRight,
 } from 'lucide-react'
 
@@ -126,9 +126,6 @@ export default function LoginPage() {
       window.turnstile.reset(widgetRef.current)
     }
   }
-
-  const fillDemo = () => { setEmail('demo@scanapi.io'); setPassword('demo1234') }
-  const fillPro  = () => { setEmail('pro@scanapi.io');  setPassword('pro1234')  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -316,62 +313,6 @@ export default function LoginPage() {
             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
               Sign in to your security workspace
             </p>
-          </div>
-
-          {/* Demo account shortcuts */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '24px' }}>
-            <button
-              type="button"
-              onClick={fillDemo}
-              style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '3px',
-                padding: '12px 14px',
-                background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px', cursor: 'pointer', transition: 'all 0.15s', textAlign: 'left',
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.18)' }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.1)' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <Search size={12} color="rgba(255,255,255,0.5)" />
-                  <span style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>Free Demo</span>
-                </div>
-                <span style={{ fontSize: '9px', fontWeight: 800, background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', padding: '1px 5px', borderRadius: '4px', textTransform: 'uppercase' }}>FREE</span>
-              </div>
-              <span style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace' }}>demo@scanapi.io</span>
-            </button>
-            <button
-              type="button"
-              onClick={fillPro}
-              style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '3px',
-                padding: '12px 14px',
-                background: 'var(--c-accent-bg)', border: '1px solid var(--c-accent-br)',
-                borderRadius: '12px', cursor: 'pointer', transition: 'all 0.15s', textAlign: 'left',
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--c-accent-bg)' }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--c-accent-bg)' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <Zap size={12} color="var(--brand)" />
-                  <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--brand)' }}>Pro Demo</span>
-                </div>
-                <span style={{ fontSize: '9px', fontWeight: 800, background: 'var(--brand)', color: '#000', padding: '1px 5px', borderRadius: '4px', textTransform: 'uppercase' }}>PRO</span>
-              </div>
-              <span style={{ fontSize: '10.5px', color: 'var(--c-accent-br)', fontFamily: 'monospace' }}>pro@scanapi.io</span>
-            </button>
-          </div>
-
-          {/* Divider */}
-          <div style={{ position: 'relative', marginBottom: '24px' }}>
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center' }}>
-              <div style={{ width: '100%', borderTop: '1px solid rgba(255,255,255,0.08)' }} />
-            </div>
-            <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-              <span style={{ background: '#0d0f12', padding: '0 14px', fontSize: '11px', color: 'rgba(255,255,255,0.25)', fontWeight: 500 }}>or sign in with your account</span>
-            </div>
           </div>
 
           {/* Login form */}
