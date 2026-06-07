@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Scan, Edit2, Trash2, AlertCircle, Info, Loader2 } from 'lucide-react'
 import { Layout } from '../components/Layout'
+import { PRO_URL } from '../config'
 import { GradeBadge } from '../components/GradeBadge'
 import { ConfirmModal } from '../components/ConfirmModal'
 import { scansApi, ScanProfile } from '../api/scans'
@@ -83,7 +84,7 @@ export function Dashboard() {
               <p className="text-accent text-sm font-medium">You've reached the 2-domain limit on the free plan.</p>
               <p className="text-muted text-xs mt-0.5">
                 Need more?{' '}
-                <a href="http://localhost:5173/register" className="text-accent hover:underline font-semibold">
+                <a href="{`${PRO_URL}/register`}" className="text-accent hover:underline font-semibold">
                   Upgrade to GozoBee Pro
                 </a>
                 {' '}for unlimited domains, full OWASP API scanning, and compliance reports.

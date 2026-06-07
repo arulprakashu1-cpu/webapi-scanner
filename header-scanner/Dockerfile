@@ -4,6 +4,8 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/ ./
+ARG VITE_PRO_URL=https://webapi-scanner-production.up.railway.app
+ENV VITE_PRO_URL=$VITE_PRO_URL
 RUN npm run build
 
 # Stage 2: Python backend + frontend assets

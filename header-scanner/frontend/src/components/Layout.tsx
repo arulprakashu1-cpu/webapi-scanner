@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, User, LogOut, Menu, X, Zap } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
+import { PRO_URL } from '../config'
 
 interface Props {
   children: React.ReactNode
@@ -67,7 +68,7 @@ export function Layout({ children }: Props) {
             {/* Upgrade pill */}
             {user?.plan === 'free' && (
               <a
-                href="http://localhost:5173/register"
+                href="{`${PRO_URL}/register`}"
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-[9px] text-[12px] font-bold mr-1"
                 style={{
                   background: 'linear-gradient(135deg, #F5A623, #E8941A)',
@@ -129,7 +130,7 @@ export function Layout({ children }: Props) {
               )
             })}
             {user?.plan === 'free' && (
-              <a href="http://localhost:5173/register" className="flex items-center gap-2 px-3 py-2.5 rounded-[9px] text-sm font-bold text-[#1A0A00]" style={{ background: 'linear-gradient(135deg,#F5A623,#E8941A)' }}>
+              <a href="{`${PRO_URL}/register`}" className="flex items-center gap-2 px-3 py-2.5 rounded-[9px] text-sm font-bold text-[#1A0A00]" style={{ background: 'linear-gradient(135deg,#F5A623,#E8941A)' }}>
                 <Zap className="w-3.5 h-3.5" /> Upgrade to Pro
               </a>
             )}
