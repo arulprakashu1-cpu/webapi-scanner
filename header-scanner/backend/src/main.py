@@ -19,6 +19,14 @@ logging.basicConfig(level=logging.INFO)
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5174")
 
+_CORS_ORIGINS = [
+    FRONTEND_URL,
+    "http://localhost:5174",
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://header-scanner-production.up.railway.app",
+]
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,7 +42,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL, "http://localhost:5174", "http://localhost:5173", "http://localhost:3000"],
+    allow_origins=_CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
