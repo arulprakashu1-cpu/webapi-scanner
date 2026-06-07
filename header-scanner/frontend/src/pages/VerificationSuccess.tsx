@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { CheckCircle } from 'lucide-react'
 
 function MiniLogo() {
@@ -8,6 +9,23 @@ function MiniLogo() {
 }
 
 export function VerificationSuccess() {
+  const [searchParams] = useSearchParams()
+  const token = searchParams.get('token')
+
+  useEffect(() => {
+    if (token) {
+      window.location.replace(`/api/auth/verify-email?token=${encodeURIComponent(token)}`)
+    }
+  }, [token])
+
+  if (token) {
+    return (
+      <div className="min-h-screen bg-primary flex items-center justify-center">
+        <p className="text-muted text-sm">Verifying your email…</p>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-primary flex flex-col">
       <nav className="border-b border-border-warm bg-surface px-4 h-14 flex items-center">
