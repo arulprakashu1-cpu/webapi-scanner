@@ -6,10 +6,8 @@ import {
 } from 'lucide-react'
 import { CaptchaField } from '../components/CaptchaField'
 import { ScanProgressBar } from '../components/ScanProgressBar'
-import { PRO_URL } from '../config'
+import { PRO_URL, API_BASE as API } from '../config'
 import { scansApi, PublicScanResult } from '../api/scans'
-
-const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001'
 
 const GRADE_COLOR: Record<string, string> = {
   'A+': '#3FB950', A: '#3FB950', B: '#D29922', C: '#F0883E', D: '#F85149', F: '#F85149',
@@ -445,7 +443,7 @@ export function Landing() {
                 <Link to="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, padding: '9px 20px', borderRadius: '6px', textDecoration: 'none', background: '#F5A623', color: '#0D1117' }}>
                   <ArrowRight size={13}/> Create Free Account
                 </Link>
-                <a href="{`${PRO_URL}/register`}" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, padding: '9px 20px', borderRadius: '6px', textDecoration: 'none', background: 'rgba(255,255,255,0.05)', color: '#8B949E', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <a href={`${PRO_URL}/register`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, padding: '9px 20px', borderRadius: '6px', textDecoration: 'none', background: 'rgba(255,255,255,0.05)', color: '#8B949E', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <Zap size={13} color="#A371F7"/> Pro API Scanner
                 </a>
               </div>
@@ -461,7 +459,7 @@ export function Landing() {
           <div style={{ display: 'flex', gap: '16px' }}>
             <Link to="/login"    style={{ fontSize: '12px', color: '#484F58', textDecoration: 'none' }}>Sign in</Link>
             <Link to="/register" style={{ fontSize: '12px', color: '#484F58', textDecoration: 'none' }}>Register</Link>
-            <a href="{PRO_URL}" style={{ fontSize: '12px', color: '#484F58', textDecoration: 'none' }}>Pro API</a>
+            <a href={PRO_URL} style={{ fontSize: '12px', color: '#484F58', textDecoration: 'none' }}>Pro API</a>
           </div>
         </div>
       </footer>

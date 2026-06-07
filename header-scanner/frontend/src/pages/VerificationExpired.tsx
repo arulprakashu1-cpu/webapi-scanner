@@ -4,7 +4,7 @@ import { Clock, Loader2, ExternalLink, RefreshCw } from 'lucide-react'
 import { authApi } from '../api/auth'
 import { useGlobalToast } from '../App'
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+import { API_BASE as API } from '../config'
 
 function MiniLogo() {
   return (

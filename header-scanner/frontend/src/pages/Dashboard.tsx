@@ -84,7 +84,7 @@ export function Dashboard() {
               <p className="text-accent text-sm font-medium">You've reached the 2-domain limit on the free plan.</p>
               <p className="text-muted text-xs mt-0.5">
                 Need more?{' '}
-                <a href="{`${PRO_URL}/register`}" className="text-accent hover:underline font-semibold">
+                <a href={`${PRO_URL}/register`} className="text-accent hover:underline font-semibold">
                   Upgrade to GozoBee Pro
                 </a>
                 {' '}for unlimited domains, full OWASP API scanning, and compliance reports.

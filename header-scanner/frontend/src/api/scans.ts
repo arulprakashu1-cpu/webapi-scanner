@@ -1,4 +1,5 @@
 import { api } from './client'
+import { API_BASE } from '../config'
 
 export interface ScanProfile {
   id: number
@@ -99,8 +100,7 @@ export const scansApi = {
 
   downloadReport: (runId: number, format: 'json' | 'pdf') => {
     const token = localStorage.getItem('hs_access_token')
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001'
-    const url = `${baseUrl}/api/scans/runs/${runId}/report?format=${format}`
+    const url = `${API_BASE}/api/scans/runs/${runId}/report?format=${format}`
     const a = document.createElement('a')
     a.href = url
     a.download = `scan_${runId}.${format}`

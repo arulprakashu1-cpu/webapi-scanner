@@ -4,7 +4,7 @@ import { Mail, Loader2, CheckCircle, ExternalLink, RefreshCw } from 'lucide-reac
 import { CaptchaField } from '../components/CaptchaField'
 import { authApi } from '../api/auth'
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+import { API_BASE as API } from '../config'
 
 function MiniLogo() {
   return (

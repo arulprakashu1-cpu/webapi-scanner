@@ -64,7 +64,7 @@ export function Register() {
             <h1 className="text-2xl font-black text-head mb-2 tracking-tight">Create your free account</h1>
             <p className="text-muted text-sm">
               Header Scanner v1 is free.{' '}
-              <a href="{`${PRO_URL}/register`}" className="text-accent hover:underline font-semibold">
+              <a href={`${PRO_URL}/register`} className="text-accent hover:underline font-semibold">
                 Need Pro API scanning?
               </a>
             </p>

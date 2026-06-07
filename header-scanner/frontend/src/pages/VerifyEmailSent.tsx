@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Mail, ExternalLink, RefreshCw } from 'lucide-react'
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+import { API_BASE as API } from '../config'
 
 function MiniLogo() {
   return (
