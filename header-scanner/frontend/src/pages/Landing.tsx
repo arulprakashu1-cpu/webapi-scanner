@@ -306,7 +306,7 @@ export function Landing() {
                 </div>
 
                 {/* Tabs */}
-                <div style={{ display: 'flex', background: '#161B22', border: '1px solid #30363D', borderBottom: 'none', borderRadius: '0 0 0 0', borderTop: '1px solid #21262D', marginTop: '12px', borderRadius: '10px 10px 0 0' }}>
+                <div style={{ display: 'flex', background: '#161B22', border: '1px solid #30363D', borderBottom: 'none', borderTop: '1px solid #21262D', marginTop: '12px', borderRadius: '10px 10px 0 0' }}>
                   {([
                     { id: 'headers'     as Tab, label: 'Header Analysis', count: result.findings.length },
                     { id: 'remediation' as Tab, label: 'Fix Guide',       count: issueFindings.length },
