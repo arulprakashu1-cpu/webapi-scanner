@@ -3,6 +3,8 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -67,3 +69,16 @@ def dev_clear_ip_log():
         return {"deleted": deleted, "message": "IP scan log cleared"}
     finally:
         db.close()
+
+
+# Serve React frontend in production
+_static_dir = os.path.join(os.path.dirname(__file__), "..", "..", "frontend_dist")
+if os.path.isdir(_static_dir):
+    app.mount("/assets", StaticFiles(directory=os.path.join(_static_dir, "assets")), name="assets")
+
+    @app.get("/{full_path:path}")
+    def serve_spa(full_path: str):
+        candidate = os.path.join(_static_dir, full_path)
+        if full_path and os.path.isfile(candidate):
+            return FileResponse(candidate)
+        return FileResponse(os.path.join(_static_dir, "index.html"))
