@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body {
+    @apply bg-primary text-head font-sans antialiased;
+    min-height: 100vh;
+  }
+  ::selection { background: rgba(245,166,35,0.3); color: #E6EDF3; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0D1117; }
+  ::-webkit-scrollbar-thumb { background: #30363D; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #F5A623; }
+}
+
+@layer components {
+
+  .btn-primary {
+    @apply font-bold px-6 py-2.5 rounded-[10px]
+           hover:opacity-90 hover:-translate-y-px active:translate-y-0
+           transition-all duration-150 cursor-pointer
+           disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0;
+    background: linear-gradient(135deg, #F5A623, #E8941A);
+    color: #1A0A00;
+    box-shadow: 0 4px 20px rgba(245,166,35,0.4), 0 1px 0 rgba(255,220,100,0.2) inset;
+  }
+  .btn-primary:not(:disabled):hover {
+    box-shadow: 0 6px 28px rgba(245,166,35,0.5), 0 1px 0 rgba(255,220,100,0.2) inset;
+  }
+
+  .btn-secondary {
+    @apply bg-elevated text-body-text font-semibold px-6 py-2.5 rounded-[10px]
+           border border-border-warm
+           hover:border-border-hi hover:text-head
+           transition-all duration-150
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-danger {
+    @apply bg-red-600 text-white font-bold px-6 py-2.5 rounded-[10px]
+           hover:bg-red-500 transition-colors duration-150 disabled:opacity-40;
+    box-shadow: 0 4px 16px rgba(239,68,68,0.3);
+  }
+
+  .card {
+    @apply border border-border-warm rounded-2xl p-6;
+    background: #161B22;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .card-elevated {
+    @apply bg-elevated border border-border-warm rounded-2xl p-6;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 2px 10px rgba(0,0,0,0.4);
+  }
+  .card-accent {
+    @apply rounded-2xl p-6;
+    background: rgba(245,166,35,0.05);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-left: 3px solid #F5A623;
+    box-shadow: 0 0 32px rgba(245,166,35,0.04), 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  .input-field {
+    @apply w-full border border-border-warm text-head rounded-[10px]
+           px-4 py-3 focus:outline-none
+           focus:border-accent/60
+           transition-all duration-150
+           placeholder:text-muted/60;
+    background: rgba(13,17,23,0.8);
+  }
+  .input-field:focus {
+    box-shadow: 0 0 0 3px rgba(245,166,35,0.12), 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  .label {
+    @apply text-[11px] font-bold text-muted uppercase tracking-[0.07em] mb-2 block;
+  }
+
+  .tag { @apply inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 rounded-[6px] border; }
+  .tag-accent { @apply tag bg-accent/10 border-accent/25 text-accent; }
+  .tag-blue   { @apply tag bg-blue-500/10 border-blue-500/20 text-blue-400; }
+  .tag-green  { @apply tag bg-green-500/10 border-green-500/20 text-green-400; }
+  .tag-red    { @apply tag bg-red-500/10 border-red-500/20 text-red-400; }
+
+  .section-title { @apply text-2xl font-black text-head tracking-tight; }
+  .section-sub   { @apply text-sm text-muted mt-1; }
+
+  .stat-card {
+    @apply rounded-xl p-4 flex flex-col gap-1;
+    background: #21262D;
+    border: 1px solid #30363D;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 4px 16px rgba(0,0,0,0.4);
+  }
+}
+
+@keyframes slide-in {
+  from { transform: translateX(110%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes fade-up {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+@keyframes bee-glow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(245,166,35,0.55)); }
+  50%       { filter: drop-shadow(0 0 10px rgba(245,166,35,0.85)); }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.animate-slide-in { animation: slide-in 0.22s cubic-bezier(0.16,1,0.3,1); }
+.animate-fade-up  { animation: fade-up 0.3s ease-out; }
+.animate-bee-glow { animation: bee-glow 2.5s ease-in-out infinite; }

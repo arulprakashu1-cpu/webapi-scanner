@@ -54,17 +54,17 @@
 
 /* ─── DARK THEME ─── */
 [data-theme="dark"] {
-  --bg-app:       #111009;
-  --bg-surface:   #1A1810;
-  --bg-surface2:  #211F16;
-  --bg-elevated:  #28261C;
-  --bg-input:     #111009;
-  --bg-rail:      #0C0B06;
-  --border:       #302E22;
-  --border2:      #403D2E;
-  --text-dim:     #7A7464;
-  --text-body:    #B8B3A0;
-  --text-head:    #F0EDE0;
+  --bg-app:       #0D1117;
+  --bg-surface:   #161B22;
+  --bg-surface2:  #1C2128;
+  --bg-elevated:  #21262D;
+  --bg-input:     #0D1117;
+  --bg-rail:      #090D12;
+  --border:       #30363D;
+  --border2:      #484F58;
+  --text-dim:     #8B949E;
+  --text-body:    #8D96A0;
+  --text-head:    #E6EDF3;
   --shadow-xs: 0 1px 3px rgba(0,0,0,.3);
   --shadow-sm: 0 2px 8px rgba(0,0,0,.4);
   --shadow-md: 0 4px 20px rgba(0,0,0,.5);

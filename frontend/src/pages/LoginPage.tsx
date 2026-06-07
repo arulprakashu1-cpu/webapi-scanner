@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { useTheme } from '../contexts/ThemeContext'
 import {
   Eye, EyeOff, AlertCircle, Shield, BarChart3, Zap,
   Brain, Clock, CheckCircle, Globe, Lock, ArrowRight,
@@ -71,7 +70,6 @@ const SEV_COLOR: Record<string, string> = {
 
 export default function LoginPage() {
   const { login } = useAuth()
-  const { theme } = useTheme()
   const navigate = useNavigate()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
@@ -161,26 +159,8 @@ export default function LoginPage() {
         <div style={{ position: 'absolute', top: '40%', left: '30%', width: '300px', height: '300px', background: 'radial-gradient(circle, var(--c-accent-bg) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '64px', position: 'relative', zIndex: 1 }}>
-          <img
-            src={theme === 'dark' ? '/logo-white.svg' : '/logo-white.svg'}
-            alt="GozoBee"
-            style={{ height: '34px' }}
-            onError={(e) => {
-              const t = e.currentTarget as HTMLImageElement
-              t.style.display = 'none'
-              const next = t.nextElementSibling as HTMLElement
-              if (next) next.style.display = 'flex'
-            }}
-          />
-          <div style={{ display: 'none', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '32px', height: '32px', background: 'var(--brand)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Shield size={18} color="#000" />
-            </div>
-            <span style={{ fontSize: '20px', fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>GozoBee</span>
-          </div>
-          <div style={{ height: '20px', width: '1px', background: 'rgba(255,255,255,0.15)', margin: '0 4px' }} />
-          <span style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Security Platform</span>
+        <div style={{ marginBottom: '64px', position: 'relative', zIndex: 1 }}>
+          <img src="/logo-white.svg" alt="GozoBee" style={{ height: '32px' }}/>
         </div>
 
         {/* Hero text */}

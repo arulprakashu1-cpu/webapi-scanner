@@ -1,0 +1,9 @@
+INFO:     Started server process [20220]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:httpx:HTTP Request: GET https://example.com "HTTP/1.1 200 OK"
+INFO:src.auth.service:Account 6 deleted. Reason: None
+INFO:httpx:HTTP Request: GET https://google.com "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET https://www.google.com/ "HTTP/1.1 200 OK"
+INFO:src.auth.service:Account 7 deleted. Reason: None
